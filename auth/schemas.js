@@ -11,7 +11,9 @@ const signinSchema = Joi.object({
   password: Joi.string().alphanum().min(8).required(),
 });
 
+
 module.exports = {
   signupSchema,
   signinSchema,
+  userSchema, 
 };

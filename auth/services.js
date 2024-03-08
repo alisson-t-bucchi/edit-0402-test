@@ -70,6 +70,31 @@ function validateAccessToken(token) {
   }
 }
 
+async function incremetLoginAttempts(email) {
+  try {
+    await db.getDB().collection(db.usersCollection).updateOne({ email: email}, {$inc: {loginAttempts: 1}});
+  } catch (error) {
+    console.log(error); 
+  }
+}
+
+async function resetLoginAttemps(email) {
+  try {
+    await db.getDB().collection(db.usersCollection).updateOne({ email: email }, {$set: {loginAttempts: 0}}); 
+  } catch (error) {
+    console.log(error); 
+  }
+}
+
+async function lockAccount(email) {
+  try {
+    await db.getDB().collection(db.userCollection).updateOne({ email: email}, { $set: { accountLocked: true }}); 
+  } catch (error) {
+    console.log(error); 
+  }
+}
+
+
 module.exports = {
   findUserByID,
   findUserByEmail,
@@ -77,4 +102,7 @@ module.exports = {
   createUser,
   generateAccessToken,
   validateAccessToken,
+  incremetLoginAttempts, 
+  resetLoginAttemps,
+  lockAccount
 };

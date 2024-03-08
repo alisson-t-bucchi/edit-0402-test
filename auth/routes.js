@@ -16,13 +16,25 @@ router.post("/signin", async (req, res) => {
     return res.status(401).json({ error: "unauthorized" });
   }
 
-  const isValidPwd = await services.validatePassword(
-    value.password,
-    user.password
-  );
-  if (!isValidPwd) {
-    return res.status(401).json({ error: "unauthorized" });
+  const validPwd = await services.validatePassword(
+    value.password, 
+    user.password,
+    value.email
+  ); 
+
+  if (!validPwd) {
+    await services.incremetLoginAttempts(value.email);
+    const userAfterIncrement = await services.findUserByEmail(value.email); 
+
+    if (userAfterIncrement.loginAttemps >= 3) {
+      await services.lockAccount(value.email); 
+      return res.status(401).json({ error: "account locked" });
+       
+    }
+    return res.status(401).json ({ error: "unauthorized "}); 
   }
+
+  await services.resetLoginAttemps(value.email); 
 
   const token = services.generateAccessToken(user._id);
 
